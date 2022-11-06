@@ -1,6 +1,8 @@
 package models
+
 //importing the primitive package from mongodb driver
 import (
+	// "github.com/dgrijalva/jwt-go"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 )
 
@@ -16,4 +18,5 @@ type Auth struct {
 	Role string `json:"role,omitempty" bson:"role,omitempty"`
 	Wishlist []string `json:"wishlist" bson:"wishlist"`
 	Purchased []string `json:"purchased" bson:"purchased"`
+	// jwt.StandardClaims
 }
