@@ -14,4 +14,6 @@ type Auth struct {
 	Phone string `json:"phone,omitempty" bson:"phone,omitempty"`
 	ProfileImage string `json:"profileimage" bson:"profileimage"`
 	Role string `json:"role,omitempty" bson:"role,omitempty"`
+	Wishlist []string `json:"wishlist" bson:"wishlist"`
+	Purchased []string `json:"purchased" bson:"purchased"`
 }
