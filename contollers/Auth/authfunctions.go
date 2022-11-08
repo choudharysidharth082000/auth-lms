@@ -5,6 +5,8 @@ import (
 	"fmt"
 	"log"
 
+	"github.com/pquerna/otp/totp"
+	mailer "github.com/sidharthchoudhary/lmsAuth/Mailer"
 	"github.com/sidharthchoudhary/lmsAuth/models"
 	validate "github.com/sidharthchoudhary/lmsAuth/utils/Validate"
 	"go.mongodb.org/mongo-driver/bson"
@@ -76,4 +78,72 @@ func getAllMovies() []models.Auth {
 	}
 	cur.Close(context.TODO())
 	return movies
+}
+
+// function to generate otp
+func GenerateOTP(email string) string {
+	key, err := totp.Generate(totp.GenerateOpts{
+		Issuer:      "Example.com",
+		AccountName: "alice@example.com",
+	})
+	if err != nil {
+		log.Fatal(err)
+	}
+	//sending the otp to the email
+	sendMail := mailer.MailUser(email, "One Time Password", key.Secret())
+	if sendMail {
+		return key.Secret()
+	}
+	return "Not Found"
+}
+
+// forget password function
+func ForgetPassword(email string) bool {
+	//finding the user
+	var auth models.Auth
+	filter := bson.M{"email": email}
+	//checking for the email in the database
+	err := collection.FindOne(context.TODO(), filter).Decode(&auth)
+	if err != nil {
+		log.Fatal(err)
+	}
+	//generating the otp
+	otp, err := totp.Generate(totp.GenerateOpts{
+		Issuer:      "Example.com",
+		AccountName: "Sidharth",
+	})
+	if err != nil {
+		log.Fatal(err)
+	}
+	//updating the database
+	updateRecords, err := collection.UpdateOne(context.TODO(), filter, bson.D{
+		{"$set", bson.D{
+			{"otp", otp.Secret()},
+		}},
+	})
+	if err != nil {
+		log.Fatal(err)
+	}
+	fmt.Printf("Matched %v documents and updated %v documents.\n", updateRecords.MatchedCount, updateRecords.ModifiedCount)
+	//sending the otp to the email
+	sendMail := mailer.MailUser(email, "One Time Password", otp.Secret())
+	if sendMail {
+		return true
+	}
+	return false
+}
+//verify otp function
+func VerifyOTP(email string, otp string) bool {
+	var auth models.Auth
+	filter := bson.M{"email": email}
+	//checking for the email in the database
+	err := collection.FindOne(context.TODO(), filter).Decode(&auth)
+	if err != nil {
+		log.Fatal(err)
+	}
+	//checking if the otp is correct
+	if auth.OTP.OTP == otp {
+		return true
+	}
+	return false
 }

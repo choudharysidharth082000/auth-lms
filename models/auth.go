@@ -18,5 +18,13 @@ type Auth struct {
 	Role         string             `json:"role,omitempty" bson:"role,omitempty"`
 	Wishlist     []string           `json:"wishlist" bson:"wishlist"`
 	Purchased    []string           `json:"purchased" bson:"purchased"`
+	OTP          *OTP               `json:"otp" bson:"otp"`
 	// jwt.StandardClaims
+}
+
+type OTP struct {
+	Email     string             `json:"email,omitempty" bson:"email,omitempty"`
+	OTP       string             `json:"otp,omitempty" bson:"otp,omitempty"`
+	Verified  bool               `json:"verified,omitempty" bson:"verified,omitempty"`
+	CreatedAt primitive.DateTime `json:"createdat,omitempty" bson:"createdat,omitempty"`
 }

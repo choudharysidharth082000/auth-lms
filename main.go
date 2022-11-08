@@ -7,6 +7,7 @@ import (
 
 	"github.com/gorilla/mux"
 	"github.com/sidharthchoudhary/lmsAuth/contollers/Auth"
+	"github.com/sidharthchoudhary/lmsAuth/contollers/courses"
 )
 
 func main() {
@@ -19,6 +20,8 @@ func main() {
 	newRouter.HandleFunc("/v1/api/profile/getProfile/{id}", Auth.GetProfileController).Methods("GET")
 	newRouter.HandleFunc("/v1/api/profile/updateProfile", Auth.UpdateProfileController).Methods("PUT")
 	newRouter.HandleFunc("/v1/api/profile/getProfile", Auth.GetAllProfilesController).Methods("GET")
+	//test route for sending email
+	newRouter.HandleFunc("/v1/api/test", courses.TestController).Methods("GET")
 	//serve the server on port 4040
 	fmt.Println("Server is running on port 4040")
 	log.Fatal(http.ListenAndServe(":4040", newRouter))	
