@@ -79,4 +79,3 @@ func VerifyOTPController(w http.ResponseWriter, r *http.Request) {
 		json.NewEncoder(w).Encode(commons.Response{Status: 400, Message: "OTP is not verified"})
 	}
 }
-g
