@@ -6,6 +6,7 @@ import (
 	"log"
 
 	"github.com/sidharthchoudhary/lmsAuth/models"
+	validate "github.com/sidharthchoudhary/lmsAuth/utils/Validate"
 	"go.mongodb.org/mongo-driver/bson"
 )
 
@@ -13,12 +14,8 @@ import (
 
 func Login(email string, password string) models.Auth {
 	//is the email 8 characaters long
-	if len(email) < 8 {
-		log.Fatal("Email is not 8 characters long")
-	}
-	//is the password 8 characters long
-	if len(password) < 8 {
-		log.Fatal("Password is not 8 characters long")
+	if !validate.LoginValidate(email, password) {
+		log.Fatal("Email or password is not valid")
 	}
 	//creating a variable for the auth
 	var auth models.Auth
@@ -38,12 +35,8 @@ func Login(email string, password string) models.Auth {
 func Signup(user models.Auth) {
 	//is the email 8 characaters long
 	fmt.Println(user.Email)
-	if len(user.Email) < 8 {
-		log.Fatal("Email is not 8 characters long")
-	}
-	//is the password 8 characters long
-	if len(user.Password) < 8 {
-		log.Fatal("Password is not 8 characters long")
+	if !validate.SignupValidate(user.Email, user.Password, user.FirstName, user.LastName, user.UserName, user.Phone) {
+		log.Fatal("Email or password is not valid")
 	}
 	//creating a variable for the auth
 	var auth models.Auth
@@ -51,7 +44,8 @@ func Signup(user models.Auth) {
 	//checking for the email in the database
 	err := collection.FindOne(context.TODO(), filter).Decode(&auth)
 	if err == nil {
-		log.Fatal("User does not exist")
+		log.Fatal("User Already present")
+		log.Fatal(err)
 	}
 	//inserting the user in the database
 	_, err = collection.InsertOne(context.TODO(), user)

@@ -7,6 +7,7 @@ import (
 
 	commons "github.com/sidharthchoudhary/lmsAuth/Commons"
 	"github.com/sidharthchoudhary/lmsAuth/models"
+	"github.com/sidharthchoudhary/lmsAuth/utils/JWT"
 )
 func LoginController(w http.ResponseWriter, r *http.Request) {
 	//getting the emeail and password from the request body
@@ -18,7 +19,12 @@ func LoginController(w http.ResponseWriter, r *http.Request) {
 	fmt.Println("Login controller is called");
 	//creating the jwt token	
 	w.WriteHeader(http.StatusOK)
-	json.NewEncoder(w).Encode(commons.Response{Status: 200,Message: "User is logged in", Data: auth})
+	tokenGenerated, err :=jwt.CreateJWT(auth.ID.Hex());
+	if err != nil {
+		json.NewEncoder(w).Encode(commons.Response{Status: 500,Message: "Error in creating the token"})
+	}
+	//creating the jwt token
+	json.NewEncoder(w).Encode(commons.Response{Status: 200,Message: "User is logged in", Data: auth, Token: tokenGenerated})
 }
 //signup controller
 func SignupController(w http.ResponseWriter, r *http.Request) {
@@ -32,7 +38,11 @@ func SignupController(w http.ResponseWriter, r *http.Request) {
 	fmt.Println("Signup controller is called");
 	//creating the jwt token	
 	w.WriteHeader(http.StatusOK)
-	json.NewEncoder(w).Encode(commons.Response{Status: 200,Message: "User is logged in"})
+	createToken, err := jwt.CreateJWT(user.ID.Hex())
+	if err != nil {
+		json.NewEncoder(w).Encode(commons.Response{Status: 500,Message: "Error in creating the token"})
+	}
+	json.NewEncoder(w).Encode(commons.Response{Status: 200,Message: "User is logged in", Token: createToken})
 }
 //test route 
 func TestController(w http.ResponseWriter, r *http.Request) {
