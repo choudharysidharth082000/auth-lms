@@ -12,9 +12,9 @@ import (
 
 func main() {
 	newRouter := mux.NewRouter()
-	newRouter.HandleFunc("/v1/api/auth/login", Auth.LoginController).Methods("GET")
+	newRouter.HandleFunc("/v1/api/auth/login", Auth.LoginController).Methods("POST", "OPTIONS")
 	newRouter.HandleFunc("/v1/api/auth/signup", Auth.SignupController).Methods("POST")
-	newRouter.HandleFunc("/test", Auth.TestController).Methods("GET")
+	newRouter.HandleFunc("/test", Auth.TestController).Methods("POST", "OPTIONS")
 
 	//profile routes
 	newRouter.HandleFunc("/v1/api/profile/getProfile/{id}", Auth.GetProfileController).Methods("GET")

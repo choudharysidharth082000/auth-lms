@@ -28,3 +28,9 @@ type OTP struct {
 	Verified  bool               `json:"verified,omitempty" bson:"verified,omitempty"`
 	CreatedAt primitive.DateTime `json:"createdat,omitempty" bson:"createdat,omitempty"`
 }
+
+type Login struct {
+	ID       primitive.ObjectID `json:"_id" bson:"_id"`
+	Email    string             `json:"email,omitempty" bson:"email,omitempty"`
+	Password string             `json:"password,omitempty" bson:"password,omitempty"`
+}

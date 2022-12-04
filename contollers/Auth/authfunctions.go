@@ -14,23 +14,28 @@ import (
 
 //importing the jwt package
 
-func Login(email string, password string) models.Auth {
+func Login(email string, password string) bool {
 	//is the email 8 characaters long
-	if !validate.LoginValidate(email, password) {
-		log.Fatal("Email or password is not valid")
-	}
-	//creating a variable for the auth
+	fmt.Println(email)
+	fmt.Println(password)
+	// if len(email) < 4 {
+	// 	fmt.Println(email, password)
+	// 	log.Fatal("Email or password is not valid")
+	// 	return false
+	// }
+	// //creating a variable for the auth
 	var auth models.Auth
-	// convertId, _ := primitive.ObjectIDFromHex("63667e623638eddfb8f47c07")
+	// // convertId, _ := primitive.ObjectIDFromHex("63667e623638eddfb8f47c07")
 	filter := bson.M{"email": email}
 	fmt.Println(filter)
-	//checking for the email in the database
+	// //checking for the email in the database
 	err := collection.FindOne(context.TODO(), filter).Decode(&auth)
-	fmt.Println(err)
+	// fmt.Println(err)
 	if err != nil {
 		log.Fatal(err)
+		return false
 	}
-	return auth
+	return true
 }
 
 // signinig up
@@ -132,7 +137,8 @@ func ForgetPassword(email string) bool {
 	}
 	return false
 }
-//verify otp function
+
+// verify otp function
 func VerifyOTP(email string, otp string) bool {
 	var auth models.Auth
 	filter := bson.M{"email": email}
