@@ -12,29 +12,19 @@ import (
 
 func LoginController(w http.ResponseWriter, r *http.Request) {
 	fmt.Println("Login controller is called")
-	w.Header().Set("Access-Control-Allow-Origin", "*");
-	w.Header().Set("Access-Control-Allow-Headers", "content-type");
-	w.Header().Set("Access-Control-Allow-Methods", "POST, OPTIONS");
+	w.Header().Set("Access-Control-Allow-Origin", "*")
+	w.Header().Set("Access-Control-Allow-Headers", "content-type")
+	w.Header().Set("Access-Control-Allow-Methods", "POST, OPTIONS")
 	//getting the request body
-	var auth models.Auth;
-	_ = json.NewDecoder(r.Body).Decode(&auth);
-	userEmail := auth.Email;
-	userPassword := auth.Password;
-	fmt.Println(userEmail,userPassword);
+	var auth models.Auth
+	_ = json.NewDecoder(r.Body).Decode(&auth)
+	userEmail := auth.Email
+	userPassword := auth.Password
 	//calling the login function in the methods
-	if(Login(userEmail, userPassword)) {
-		
-		w.Header().Set("Content-Type", "application/json");
-		w.WriteHeader(http.StatusAccepted);
-		json.NewEncoder(w).Encode(commons.Response{Status: 200, Message: "Login is successful"});
-	} else {
-		w.Header().Set("Content-Type", "application/json");
-		w.WriteHeader(http.StatusUnauthorized);
-		json.NewEncoder(w).Encode(commons.Response{Status: 401, Message: "Login is not successful"});
-	}
+	w.WriteHeader(http.StatusAccepted)
+	json.NewEncoder(w).Encode(Login(userEmail, userPassword))
 }
 
-// signup controller
 func SignupController(w http.ResponseWriter, r *http.Request) {
 	//getting the emeail and password from the request body
 	w.Header().Set("Content-Type", "application/json")
@@ -53,20 +43,36 @@ func SignupController(w http.ResponseWriter, r *http.Request) {
 	json.NewEncoder(w).Encode(commons.Response{Status: 200, Message: "User is logged in", Token: createToken})
 }
 
+// // signup controller
+// func SignupController(w http.ResponseWriter, r *http.Request) {
+// 	//getting the emeail and password from the request body
+// 	w.Header().Set("Access-Control-Allow-Origin", "*")
+// 	w.Header().Set("Access-Control-Allow-Headers", "content-type")
+// 	w.Header().Set("Access-Control-Allow-Methods", "POST, OPTIONS")
+// 	//getting the emeial and passwprd from the mux in request body
+// 	var user models.Auth
+// 	_ = json.NewDecoder(r.Body).Decode(&user)
+// 	fmt.Println(user)
+// 	fmt.Println("Signup controller is called")
+// 	//creating the jwt token
+// 	w.WriteHeader(http.StatusOK)
+// 	json.NewEncoder(w).Encode(Signup(user))
+// }
+
 // test route
 func TestController(w http.ResponseWriter, r *http.Request) {
 	//cors handling
 	w.Header().Set("Access-Control-Allow-Origin", "*")
 	w.Header().Set("Access-Control-Allow-Headers", "content-type")
-	w.Header().Set("Access-Control-Allow-Methods", "POST, OPTIONS")	
+	w.Header().Set("Access-Control-Allow-Methods", "POST, OPTIONS")
 	fmt.Println("Hwllo wolr vnrjvnr")
 	//adding the default headers
 	w.Header().Set("Access-Control-Allow-Origin", "http://localhost:3000")
-	w.Header().Set("Access-Control-Allow-Headers", "content-type")	
+	w.Header().Set("Access-Control-Allow-Headers", "content-type")
 	w.Header().Set("Access-Control-Allow-Methods", "POST, OPTIONS")
 	var auth models.Auth
 	_ = json.NewDecoder(r.Body).Decode(&auth)
-	fmt.Println(auth.Email, auth.Password);
+	fmt.Println(auth.Email, auth.Password)
 	// Login(auth.Email, auth.Password);
 	//Aloow all headers
 	// w.Header().Set("Allow-Control-Allow_Headers", "content-type");

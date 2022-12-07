@@ -6,6 +6,7 @@ import (
 	"log"
 
 	"github.com/pquerna/otp/totp"
+	commons "github.com/sidharthchoudhary/lmsAuth/Commons"
 	mailer "github.com/sidharthchoudhary/lmsAuth/Mailer"
 	"github.com/sidharthchoudhary/lmsAuth/models"
 	validate "github.com/sidharthchoudhary/lmsAuth/utils/Validate"
@@ -14,35 +15,87 @@ import (
 
 //importing the jwt package
 
-func Login(email string, password string) bool {
-	//is the email 8 characaters long
-	fmt.Println(email)
-	fmt.Println(password)
-	// if len(email) < 4 {
-	// 	fmt.Println(email, password)
-	// 	log.Fatal("Email or password is not valid")
-	// 	return false
-	// }
-	// //creating a variable for the auth
-	var auth models.Auth
-	// // convertId, _ := primitive.ObjectIDFromHex("63667e623638eddfb8f47c07")
-	filter := bson.M{"email": email}
-	fmt.Println(filter)
-	// //checking for the email in the database
-	err := collection.FindOne(context.TODO(), filter).Decode(&auth)
-	// fmt.Println(err)
-	if err != nil {
-		log.Fatal(err)
-		return false
+func Login(email string, password string) commons.Response {
+	if validate.LoginValidate(email, password) == false {
+		return commons.Response{
+			Status:  0,
+			Message: "Invalid Email or Password",
+		}
 	}
-	return true
+	var auth models.Auth
+	filter := bson.M{"email": email}
+	err := collection.FindOne(context.TODO(), filter).Decode(&auth)
+	if err != nil {
+		return commons.Response{
+			Status:  0,
+			Message: "User Not Found",
+		}
+	}
+	fmt.Println(auth.Password)
+	if auth.Password == password {
+		return commons.Response{
+			Status:  1,
+			Message: "Login Successful",
+			Data:    auth,
+		}
+	}
+	fmt.Println(auth)
+	return commons.Response{
+		Status:  0,
+		Message: "Invalid Email or Password",
+	}
+
 }
 
-// signinig up
+// func Signup(user models.Auth) commons.Response {
+// 	//validating the user
+// 	if validate.SignupValidate(user.Email, user.Password, user.UserName) == false {
+// 		return commons.Response{
+// 			Status:  0,
+// 			Message: "Invalid Email or Password",
+// 		}
+// 	}
+// 	//checking if the user is already in the data base
+// 	var auth models.Auth
+// 	filter := bson.M{"email": user.Email}
+// 	err := collection.FindOne(context.TODO(), filter).Decode(&auth)
+// 	if err.Error() == "mongo: no documents in result" {
+// 		//creating the user
+// 		insertedDocument, err := collection.InsertOne(context.TODO(), user)
+// 		if err != nil {
+// 			return commons.Response{
+// 				Status:  0,
+// 				Message: "Error Creating User",
+// 			}
+// 		}
+// 		//generate the token
+// 		generatedToken, err := jwt.CreateJWT(insertedDocument.InsertedID.(primitive.ObjectID).Hex())
+// 		return commons.Response{
+// 			Status:  1,
+// 			Message: "User Created Successfully",
+// 			Data:    insertedDocument,
+// 			Token:   generatedToken,
+// 		}
+// 	} else if err == nil {
+// 		return commons.Response{
+// 			Status:  0,
+// 			Message: "User Already Exists",
+// 			Data:    nil,
+// 			Token:   "",
+// 		}
+// 	} else {
+// 		return commons.Response{
+// 			Status:  0,
+// 			Message: "Error Creating User",
+// 		}
+// 	}
+
+// }
+
 func Signup(user models.Auth) {
 	//is the email 8 characaters long
 	fmt.Println(user.Email)
-	if !validate.SignupValidate(user.Email, user.Password, user.FirstName, user.LastName, user.UserName, user.Phone) {
+	if !validate.SignupValidate(user.Email, user.Password, user.UserName) {
 		log.Fatal("Email or password is not valid")
 	}
 	//creating a variable for the auth
