@@ -9,8 +9,10 @@ import (
 	commons "github.com/sidharthchoudhary/lmsAuth/Commons"
 	mailer "github.com/sidharthchoudhary/lmsAuth/Mailer"
 	"github.com/sidharthchoudhary/lmsAuth/models"
+	jwt "github.com/sidharthchoudhary/lmsAuth/utils/JWT"
 	validate "github.com/sidharthchoudhary/lmsAuth/utils/Validate"
 	"go.mongodb.org/mongo-driver/bson"
+	"go.mongodb.org/mongo-driver/bson/primitive"
 )
 
 //importing the jwt package
@@ -92,11 +94,14 @@ func Login(email string, password string) commons.Response {
 
 // }
 
-func Signup(user models.Auth) {
+func Signup(user models.Auth) commons.Response {
 	//is the email 8 characaters long
 	fmt.Println(user.Email)
 	if !validate.SignupValidate(user.Email, user.Password, user.UserName) {
-		log.Fatal("Email or password is not valid")
+		return commons.Response{
+			Status:  0,
+			Message: "Invalid Email or Password",
+		}
 	}
 	//creating a variable for the auth
 	var auth models.Auth
@@ -104,15 +109,29 @@ func Signup(user models.Auth) {
 	//checking for the email in the database
 	err := collection.FindOne(context.TODO(), filter).Decode(&auth)
 	if err == nil {
-		log.Fatal("User Already present")
-		log.Fatal(err)
+		return commons.Response{
+			Status:  0,
+			Message: "User Already Exists",
+			Data:    nil,
+			Token:   "",
+		}
 	}
 	//inserting the user in the database
-	_, err = collection.InsertOne(context.TODO(), user)
+	insertedData, err := collection.InsertOne(context.TODO(), user)
 	if err != nil {
-		log.Fatal(err)
+		return commons.Response{
+			Status:  0,
+			Message: "Error Creating User",
+		}
 	}
-	fmt.Println("User is signed up")
+	//creating the token from the resoonse
+	generatedToken, err := jwt.CreateJWT(insertedData.InsertedID.(primitive.ObjectID).Hex())
+	return commons.Response{
+		Status:  1,
+		Message: "User Created Successfully",
+		Data:    insertedData,
+		Token:   generatedToken,
+	}
 }
 
 // getting all the data

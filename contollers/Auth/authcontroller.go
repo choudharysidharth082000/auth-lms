@@ -7,7 +7,6 @@ import (
 
 	commons "github.com/sidharthchoudhary/lmsAuth/Commons"
 	"github.com/sidharthchoudhary/lmsAuth/models"
-	jwt "github.com/sidharthchoudhary/lmsAuth/utils/JWT"
 )
 
 func LoginController(w http.ResponseWriter, r *http.Request) {
@@ -27,38 +26,19 @@ func LoginController(w http.ResponseWriter, r *http.Request) {
 
 func SignupController(w http.ResponseWriter, r *http.Request) {
 	//getting the emeail and password from the request body
-	w.Header().Set("Content-Type", "application/json")
-	//getting the emeial and passwprd from the mux in request body
+	
+	fmt.Println("Signup controller is called")
+	w.Header().Set("Access-Control-Allow-Origin", "*")
+	w.Header().Set("Access-Control-Allow-Headers", "content-type")
+	w.Header().Set("Access-Control-Allow-Methods", "POST, OPTIONS")
+	// getting the emeial and passwprd from the mux in request body
 	var user models.Auth
 	_ = json.NewDecoder(r.Body).Decode(&user)
 	fmt.Println(user)
-	Signup(user)
-	fmt.Println("Signup controller is called")
-	//creating the jwt token
-	w.WriteHeader(http.StatusOK)
-	createToken, err := jwt.CreateJWT(user.ID.Hex())
-	if err != nil {
-		json.NewEncoder(w).Encode(commons.Response{Status: 500, Message: "Error in creating the token"})
-	}
-	json.NewEncoder(w).Encode(commons.Response{Status: 200, Message: "User is logged in", Token: createToken})
+	//status accepred
+	w.WriteHeader(http.StatusAccepted)
+	json.NewEncoder(w).Encode(Signup(user))
 }
-
-// // signup controller
-// func SignupController(w http.ResponseWriter, r *http.Request) {
-// 	//getting the emeail and password from the request body
-// 	w.Header().Set("Access-Control-Allow-Origin", "*")
-// 	w.Header().Set("Access-Control-Allow-Headers", "content-type")
-// 	w.Header().Set("Access-Control-Allow-Methods", "POST, OPTIONS")
-// 	//getting the emeial and passwprd from the mux in request body
-// 	var user models.Auth
-// 	_ = json.NewDecoder(r.Body).Decode(&user)
-// 	fmt.Println(user)
-// 	fmt.Println("Signup controller is called")
-// 	//creating the jwt token
-// 	w.WriteHeader(http.StatusOK)
-// 	json.NewEncoder(w).Encode(Signup(user))
-// }
-
 // test route
 func TestController(w http.ResponseWriter, r *http.Request) {
 	//cors handling
