@@ -15,7 +15,7 @@ func main() {
 	newRouter.HandleFunc("/v1/api/auth/login", Auth.LoginController).Methods("POST", "OPTIONS")
 	newRouter.HandleFunc("/v1/api/auth/signup", Auth.SignupController).Methods("POST", "OPTIONS")
 	newRouter.HandleFunc("/test", Auth.TestController).Methods("POST", "OPTIONS")
-
+	newRouter.HandleFunc("/v1/api/auth/forgotPassword", Auth.ForgotPasswordController).Methods("POST", "OPTIONS")
 	//profile routes
 	newRouter.HandleFunc("/v1/api/profile/getProfile/{id}", Auth.GetProfileController).Methods("GET")
 	newRouter.HandleFunc("/v1/api/profile/updateProfile", Auth.UpdateProfileController).Methods("PUT")
