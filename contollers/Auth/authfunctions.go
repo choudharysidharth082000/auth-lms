@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"log"
+	"time"
 
 	"github.com/pquerna/otp/totp"
 	commons "github.com/sidharthchoudhary/lmsAuth/Commons"
@@ -26,19 +27,21 @@ func Login(email string, password string) commons.Response {
 	}
 	var auth models.Auth
 	filter := bson.M{"email": email}
-	err := collection.FindOne(context.TODO(), filter).Decode(&auth)
+	err := CollectionMongo.FindOne(context.TODO(), filter).Decode(&auth)
 	if err != nil {
 		return commons.Response{
 			Status:  0,
 			Message: "User Not Found",
 		}
 	}
+	generatedToken, err := jwt.CreateJWT(auth.ID.Hex())
 	fmt.Println(auth.Password)
 	if auth.Password == password {
 		return commons.Response{
 			Status:  1,
 			Message: "Login Successful",
 			Data:    auth,
+			Token: generatedToken,
 		}
 	}
 	fmt.Println(auth)
@@ -49,50 +52,6 @@ func Login(email string, password string) commons.Response {
 
 }
 
-// func Signup(user models.Auth) commons.Response {
-// 	//validating the user
-// 	if validate.SignupValidate(user.Email, user.Password, user.UserName) == false {
-// 		return commons.Response{
-// 			Status:  0,
-// 			Message: "Invalid Email or Password",
-// 		}
-// 	}
-// 	//checking if the user is already in the data base
-// 	var auth models.Auth
-// 	filter := bson.M{"email": user.Email}
-// 	err := collection.FindOne(context.TODO(), filter).Decode(&auth)
-// 	if err.Error() == "mongo: no documents in result" {
-// 		//creating the user
-// 		insertedDocument, err := collection.InsertOne(context.TODO(), user)
-// 		if err != nil {
-// 			return commons.Response{
-// 				Status:  0,
-// 				Message: "Error Creating User",
-// 			}
-// 		}
-// 		//generate the token
-// 		generatedToken, err := jwt.CreateJWT(insertedDocument.InsertedID.(primitive.ObjectID).Hex())
-// 		return commons.Response{
-// 			Status:  1,
-// 			Message: "User Created Successfully",
-// 			Data:    insertedDocument,
-// 			Token:   generatedToken,
-// 		}
-// 	} else if err == nil {
-// 		return commons.Response{
-// 			Status:  0,
-// 			Message: "User Already Exists",
-// 			Data:    nil,
-// 			Token:   "",
-// 		}
-// 	} else {
-// 		return commons.Response{
-// 			Status:  0,
-// 			Message: "Error Creating User",
-// 		}
-// 	}
-
-// }
 
 func Signup(user models.Auth) commons.Response {
 	//is the email 8 characaters long
@@ -107,7 +66,7 @@ func Signup(user models.Auth) commons.Response {
 	var auth models.Auth
 	filter := bson.M{"email": user.Email}
 	//checking for the email in the database
-	err := collection.FindOne(context.TODO(), filter).Decode(&auth)
+	err := CollectionMongo.FindOne(context.TODO(), filter).Decode(&auth)
 	if err == nil {
 		return commons.Response{
 			Status:  0,
@@ -117,7 +76,7 @@ func Signup(user models.Auth) commons.Response {
 		}
 	}
 	//inserting the user in the database
-	insertedData, err := collection.InsertOne(context.TODO(), user)
+	insertedData, err := CollectionMongo.InsertOne(context.TODO(), user)
 	if err != nil {
 		return commons.Response{
 			Status:  0,
@@ -138,7 +97,7 @@ func Signup(user models.Auth) commons.Response {
 // getting all records from mongodb
 func getAllMovies() []models.Auth {
 	var movies []models.Auth
-	cur, err := collection.Find(context.TODO(), bson.D{{}})
+	cur, err := CollectionMongo.Find(context.TODO(), bson.D{{}})
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -180,7 +139,7 @@ func ForgetPassword(email string) bool {
 	var auth models.Auth
 	filter := bson.M{"email": email}
 	//checking for the email in the database
-	err := collection.FindOne(context.TODO(), filter).Decode(&auth)
+	err := CollectionMongo.FindOne(context.TODO(), filter).Decode(&auth)
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -193,7 +152,7 @@ func ForgetPassword(email string) bool {
 		log.Fatal(err)
 	}
 	//updating the database
-	updateRecords, err := collection.UpdateOne(context.TODO(), filter, bson.D{
+	updateRecords, err := CollectionMongo.UpdateOne(context.TODO(), filter, bson.D{
 		{"$set", bson.D{
 			{"otp", otp.Secret()},
 		}},
@@ -214,14 +173,34 @@ func ForgetPassword(email string) bool {
 func VerifyOTP(email string, otp string) bool {
 	var auth models.Auth
 	filter := bson.M{"email": email}
-	//checking for the email in the database
-	err := collection.FindOne(context.TODO(), filter).Decode(&auth)
+	err := CollectionMongo.FindOne(context.TODO(), filter).Decode(&auth)
 	if err != nil {
-		log.Fatal(err)
+		fmt.Println(err)
+		return false
 	}
-	//checking if the otp is correct
+	//calculating the time difference
+	timeDifference := time.Now().UnixNano() - int64(auth.OTP.CreatedAt)
+	//checking the time difference
+	if timeDifference > 30000000000 {
+		return false
+	}
+	//checking the otp
 	if auth.OTP.OTP == otp {
+		//updating the otp in the database
+		var varOTP models.OTP
+		varOTP.Email = email
+		varOTP.OTP = otp
+		varOTP.Verified = true
+		varOTP.CreatedAt = primitive.DateTime(time.Now().UnixNano())
+		//updating the data to the database
+		insertedData, err := CollectionMongo.UpdateOne(context.TODO(), models.OTP{Email: email}, varOTP)
+		if err != nil {
+			fmt.Println(err)
+			return false
+		}
+		fmt.Println(insertedData)
 		return true
+	} else {
+		return false
 	}
-	return false
 }

@@ -1,4 +1,4 @@
-package Auth
+package courses
 
 import (
 	"context"
@@ -11,7 +11,7 @@ import (
 
 const connectionString = "mongodb+srv://sidharth:sidharth@cluster0.nlhjv1y.mongodb.net/?retryWrites=true&w=majority"
 const dbName = "netflix"
-const colName = "Auth"
+const colName = "Course"
 
 // most important
 var CollectionMongo *mongo.Collection
@@ -19,6 +19,7 @@ var testVariable = "Sidharth"
 
 // connect with mongodb
 func init() {
+	fmt.Println("Course Collection Creation Called fucntion...");
 	clientOptions := options.Client().ApplyURI(connectionString)
 	client, err := mongo.Connect(context.TODO(), clientOptions)
 	if err != nil {

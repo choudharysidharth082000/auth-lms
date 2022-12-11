@@ -20,6 +20,11 @@ func main() {
 	newRouter.HandleFunc("/v1/api/profile/getProfile/{id}", Auth.GetProfileController).Methods("GET")
 	newRouter.HandleFunc("/v1/api/profile/updateProfile", Auth.UpdateProfileController).Methods("PUT")
 	newRouter.HandleFunc("/v1/api/profile/getProfile", Auth.GetAllProfilesController).Methods("GET")
+	//courses routes
+	newRouter.HandleFunc("/v1/api/profile/addWishList/{courseId}/{userId}", Auth.AddProductWish).Methods("POST")
+	newRouter.HandleFunc("/v1/api/courses/getCourse/{courseId}/{userId}", Auth.AddProductCart).Methods("POST")
+	newRouter.HandleFunc("/v1/api/courses/getAllCourse", courses.GetAllCourses).Methods("GET")
+	newRouter.HandleFunc("/v1/api/courses/createCourse", courses.CreateCourse).Methods("POST")
 	//test route for sending email
 	newRouter.HandleFunc("/v1/api/test", courses.TestController).Methods("GET")
 	//serve the server on port 4040

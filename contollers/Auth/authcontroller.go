@@ -98,7 +98,7 @@ func ForgotPasswordController(w http.ResponseWriter, r *http.Request) {
 	//present time
 	varOTP.CreatedAt = primitive.DateTime(time.Now().UnixNano())
 	//inserting the data to the database
-	insertedData, err := collection.UpdateOne(context.TODO(), models.OTP{Email: email}, varOTP)
+	insertedData, err := CollectionMongo.UpdateOne(context.TODO(), models.OTP{Email: email}, varOTP)
 	if err != nil {
 		fmt.Println(err)
 		json.NewEncoder(w).Encode(commons.Response{
@@ -130,7 +130,7 @@ func VerifyOTPController(w http.ResponseWriter, r *http.Request) {
 	//getting the otp from the data base
 	var auth models.Auth
 	filter := bson.M{"email": email}
-	err := collection.FindOne(context.TODO(), filter).Decode(&auth)
+	err := CollectionMongo.FindOne(context.TODO(), filter).Decode(&auth)
 	if err != nil {
 		fmt.Println(err)
 		json.NewEncoder(w).Encode(commons.Response{Status: 0, Message: "Error in getting the data from the database"})
@@ -150,7 +150,7 @@ func VerifyOTPController(w http.ResponseWriter, r *http.Request) {
 		varOTP.Verified = true
 		varOTP.CreatedAt = primitive.DateTime(time.Now().UnixNano())
 		//updating the data to the database
-		insertedData, err := collection.UpdateOne(context.TODO(), models.OTP{Email: email}, varOTP)
+		insertedData, err := CollectionMongo.UpdateOne(context.TODO(), models.OTP{Email: email}, varOTP)
 		if err != nil {
 			fmt.Println(err)
 			json.NewEncoder(w).Encode(commons.Response{
@@ -162,5 +162,5 @@ func VerifyOTPController(w http.ResponseWriter, r *http.Request) {
 		json.NewEncoder(w).Encode(commons.Response{Status: 1, Message: "OTP is verified"})
 	} else {
 		json.NewEncoder(w).Encode(commons.Response{Status: 0, Message: "OTP is not verified"})
-	}	
+	}
 }

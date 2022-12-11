@@ -17,7 +17,7 @@ func UpdateProfile(filter models.Auth, id string) bool {
 		log.Fatal(err)
 	}
 	//updating the profile in the database
-	_, err = collection.UpdateOne(context.TODO(), bson.M{"_id": convertedId}, bson.M{"$set": filter})
+	_, err = CollectionMongo.UpdateOne(context.TODO(), bson.M{"_id": convertedId}, bson.M{"$set": filter})
 	if err != nil {
 		log.Fatal(err)
 		return false
@@ -35,7 +35,7 @@ func GetProfile(id string) models.Auth {
 	//creating a variable for the auth
 	var auth models.Auth
 	//checking for the email in the database
-	err = collection.FindOne(context.TODO(), bson.M{"_id": convertedId}).Decode(&auth)
+	err = CollectionMongo.FindOne(context.TODO(), bson.M{"_id": convertedId}).Decode(&auth)
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -46,7 +46,7 @@ func GetAllProfiles() []models.Auth {
 	//creating a variable for the auth
 	var auth []models.Auth
 	//checking for the email in the database
-	cursor, err := collection.Find(context.TODO(), bson.M{})
+	cursor, err := CollectionMongo.Find(context.TODO(), bson.M{})
 	if err != nil {
 		log.Fatal(err)
 	}
