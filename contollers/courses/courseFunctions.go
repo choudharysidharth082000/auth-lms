@@ -146,3 +146,138 @@ func AddCourse(course models.Course) commons.Response {
 		Message: "Course Added",
 	}
 }
+
+//edit a single course
+func UpdateCourse(course models.Course, courseID string) commons.Response {
+	//converting the types
+	id, err := primitive.ObjectIDFromHex(courseID)	
+	if err != nil {
+		return commons.Response{
+			Status:  0,
+			Message: "Invalid Course Id",
+		}
+	}
+	//filtering the course
+	filter := bson.M{"_id": id}
+	//updating the course
+	update := bson.M{"$set": bson.M{"name": course.Name, "description": course.Description, "price": course.Price, "image": course.Image}}
+	//updating the course
+	inserted, err := CollectionMongo.UpdateOne(context.TODO(), filter, update)
+	if err != nil {
+		log.Fatal(err)
+		return commons.Response{
+			Status:  0,
+			Message: "Error Updating Course",
+		}
+	}
+	fmt.Println(inserted)
+	return commons.Response{
+		Status:  1,
+		Message: "Course Updated",
+	}
+}
+
+//getting single course
+func GetSingleCourse(courseId string) commons.Response {
+	//converting the types
+	id, err := primitive.ObjectIDFromHex(courseId)
+	if err != nil {
+		return commons.Response{
+			Status:  0,
+			Message: "Invalid Course Id",
+		}
+	}
+	//filtering the course
+	filter := bson.M{"_id": id}
+	//getting the course
+	var course models.Course
+	err = CollectionMongo.FindOne(context.TODO(), filter).Decode(&course)
+	if err != nil {
+		return commons.Response{
+			Status:  0,
+			Message: "Error Getting Course",
+		}
+	}
+	return commons.Response{
+		Status:  1,
+		Message: "Course Retrieved",
+		Data:    course,
+	}
+}
+
+//deleting the course from the database
+func DeleteCourseFunction(courseId string) commons.Response {
+	//converting the types
+	course, err := primitive.ObjectIDFromHex(courseId)
+	if err != nil {
+		return commons.Response{
+			Status:  0,
+			Message: "Invalid Course Id",
+		}
+	}
+	//deleting the course from the database
+	filter := bson.M{"_id": course}
+	//deeleting the course
+	deleted, err := CollectionMongo.DeleteOne(context.TODO(), filter);
+	if err != nil {
+		log.Fatal(err)
+		return commons.Response{
+			Status:  0,
+			Message: "Error Deleting Course",
+		}
+	}
+	fmt.Println(deleted)
+	return commons.Response{
+		Status:  1,
+		Message: "Course Deleted",
+		Data:   deleted,
+	}
+}
+//delete all the courses from the database of the particular user id 
+func DeleteManyCourses(courseID string) commons.Response{
+	//converting the types
+	course, err := primitive.ObjectIDFromHex(courseID)
+	if err != nil {
+		return commons.Response{
+			Status:  0,
+			Message: "Invalid Course Id",
+		}
+	}
+	//deleting the course from the database
+	filter := bson.M{"_id": course}
+	//deeleting the course
+	deleted, err := CollectionMongo.DeleteMany(context.TODO(), filter);
+	if err != nil {
+		log.Fatal(err)
+		return commons.Response{
+			Status:  0,
+			Message: "Error Deleting Course",
+		}
+	}
+	fmt.Println(deleted)
+	return commons.Response{
+		Status:  1,
+		Message: "Course Deleted",
+		Data:   deleted,
+	}
+}
+//deleting all the records based on created by
+func DeleteManyCoursesByUser(createdBy string) commons.Response{
+	//deleting the course from the database
+	filter := bson.M{"createdBy": createdBy}
+	//deeleting the course
+	deleted, err := CollectionMongo.DeleteMany(context.TODO(), filter);
+	if err != nil {
+		log.Fatal(err)
+		return commons.Response{
+			Status:  0,
+			Message: "Error Deleting Course",
+		}
+	}
+	fmt.Println(deleted)
+	return commons.Response{
+		Status:  1,
+		Message: "Course Deleted",
+		Data:   deleted,
+	}
+}

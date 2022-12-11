@@ -25,6 +25,14 @@ func main() {
 	newRouter.HandleFunc("/v1/api/courses/getCourse/{courseId}/{userId}", Auth.AddProductCart).Methods("POST")
 	newRouter.HandleFunc("/v1/api/courses/getAllCourse", courses.GetAllCourses).Methods("GET")
 	newRouter.HandleFunc("/v1/api/courses/createCourse", courses.CreateCourse).Methods("POST")
+	newRouter.HandleFunc("/v1/api/courses/updateCourse/{courseId}", courses.UpdateCourseController).Methods("PUT")
+	newRouter.HandleFunc("/v1/api/courses/getAllCourse/{courseId}", courses.GetSingleCourseController).Methods("GET")
+	newRouter.HandleFunc("/v1/api/courses/deleteCourse/{courseId}", courses.DeleteCourseController).Methods("DELETE")
+	newRouter.HandleFunc("/v1/api/courses/deleteCourseByCourseID/{courseId}", courses.DeleteAllCoursesController).Methods("DELETE")
+	newRouter.HandleFunc("/v1/api/courses/deleteCourseByUserID/{userId}", courses.DeleteAllCoursesByUserIdController).Methods("DELETE")
+
+	//course content routers
+	newRouter.HandleFunc("/v1/api/couses/addCourseContent/{courseId}", courses.CreateCourseStringContentController).Methods("POST")
 	//test route for sending email
 	newRouter.HandleFunc("/v1/api/test", courses.TestController).Methods("GET")
 	//serve the server on port 4040
