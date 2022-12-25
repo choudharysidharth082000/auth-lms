@@ -204,3 +204,6 @@ func VerifyOTP(email string, otp string) bool {
 		return false
 	}
 }
+
+
+//api to make the user teacher

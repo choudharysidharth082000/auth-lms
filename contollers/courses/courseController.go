@@ -60,7 +60,9 @@ func GetAllCourses(w http.ResponseWriter, r *http.Request) {
 }
 
 func CreateCourse(w http.ResponseWriter, r *http.Request) {
-	w.Header().Set("Content-Type", "application/json")
+	w.Header().Set("Access-Control-Allow-Origin", "*")
+	w.Header().Set("Access-Control-Allow-Headers", "content-type")
+	w.Header().Set("Access-Control-Allow-Methods", "POST, OPTIONS")
 	var courseVal models.Course
 	_ = json.NewDecoder(r.Body).Decode(&courseVal)
 	var response commons.Response

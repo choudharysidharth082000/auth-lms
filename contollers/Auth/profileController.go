@@ -13,13 +13,17 @@ import (
 //controllers
 
 func UpdateProfileController(w http.ResponseWriter, r *http.Request) {
-	w.Header().Set("Content-Type", "application/json")
+	fmt.Println("Update Profile Controller is called")
+	w.Header().Set("Access-Control-Allow-Origin", "*")
+	w.Header().Set("Access-Control-Allow-Headers", "content-type")
+	w.Header().Set("Access-Control-Allow-Methods", "PUT, OPTIONS")
 	params := mux.Vars(r)
+	//getting the userid from the params
 	//getting the request body
 	var user models.Auth;
 	json.NewDecoder(r.Body).Decode(&user);
 	//calling te update profile function
-	if UpdateProfile(user, params["id"]) {
+	if UpdateProfile(user, params["userID"]) {
 		w.WriteHeader(http.StatusOK)
 		json.NewEncoder(w).Encode(commons.Response{Status: 200,Message: "Profile is updated"})
 	} else {

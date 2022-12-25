@@ -127,6 +127,7 @@ func InsertCourse(val models.Course) commons.Response {
 	return commons.Response{
 		Status:  1,
 		Message: "Course Added",
+		Data: inserted,
 	}	
 }
 //add Course

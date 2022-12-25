@@ -4,14 +4,12 @@ import (
 	"context"
 	"fmt"
 	"log"
+	"os"
 
+	"github.com/joho/godotenv"
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
 )
-
-const connectionString = "mongodb+srv://sidharth:sidharth@cluster0.nlhjv1y.mongodb.net/?retryWrites=true&w=majority"
-const dbName = "netflix"
-const colName = "Auth"
 
 // most important
 var CollectionMongo *mongo.Collection
@@ -19,6 +17,14 @@ var testVariable = "Sidharth"
 
 // connect with mongodb
 func init() {
+	err := godotenv.Load()
+	if err != nil {
+		log.Fatal("Error loading .env file")
+	}
+	var connectionString = os.Getenv("MONGO_URL")
+	const dbName = "netflix"
+	const colName = "Auth"
+
 	clientOptions := options.Client().ApplyURI(connectionString)
 	client, err := mongo.Connect(context.TODO(), clientOptions)
 	if err != nil {
